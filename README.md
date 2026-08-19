@@ -9,20 +9,26 @@
 ## Состав репозитория
 
 - **`animations.js`** — сама библиотека. Ничего не запускает сама по себе,
-  только объявляет `initAnimations()` и `initPhysics()`.
-- **`bootstrap.template.js`** — НЕ часть библиотеки. Шаблон embed-кода,
-  который инициализирует Lenis/ScrollTrigger и вызывает `initAnimations()`/`initPhysics()`.
-  Копируется в конкретный проект и может редактироваться под его нужды
-  (например, безопасно удалить блок Custom Cursor, если он не нужен).
+  только объявляет `initAnimations()` и `initPhysics()`. Подключается по ссылке
+  (jsDelivr), не копируется руками.
+- **`webflow-embed.html`** — НЕ часть библиотеки. Готовый embed-код для конкретного
+  проекта: CDN-подключения (GSAP, ScrollTrigger, SplitType, Lenis, Matter.js) +
+  ссылка на `animations.js` + обрезанный `main.js` (инициализация Lenis/ScrollTrigger
+  и вызов `initAnimations()`/`initPhysics()`). Копируется в проект целиком и может
+  редактироваться под его нужды (например, безопасно удалить блок Custom Cursor,
+  если он не нужен).
 
-## Подключение (например, в Webflow — Custom Code)
+## Подключение (например, в Webflow)
 
-Порядок скриптов важен.
+### 1. Head code — одна маленькая вставка отдельно (важно!)
 
-### 1. Head code (до всех остальных скриптов)
+Это единственное, что технически не может быть частью общего embed-кода:
+скрипт должен выполниться ДО рендера страницы, а `webflow-embed.html` вставляется
+в конце (перед `</body>`) и к этому моменту будет уже поздно. Без этой вставки
+ничего не сломается функционально — но будет короткая вспышка неанимированного
+контента (элементы на миг покажутся в конечном виде, потом дёрнутся в анимацию).
 
-Предотвращает вспышку неанимированного контента (FOUC) — прячет элементы
-с `[data-animate]` до полной инициализации:
+Project Settings → Custom Code → **Head Code**:
 
 ```html
 <script>document.documentElement.classList.add('js-loading');</script>
@@ -31,26 +37,13 @@
 </style>
 ```
 
-### 2. Footer code (перед `</body>`)
+### 2. Всё остальное — один embed на проект
 
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/split-type"></script>
-<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-
-<!-- Библиотека анимаций — версия зафиксирована тегом релиза -->
-<script src="https://cdn.jsdelivr.net/gh/USERNAME/REPO@v1.0.0/animations.js"></script>
-
-<!-- Bootstrap: вставить содержимое bootstrap.template.js (адаптированное под проект) -->
-<script>
-  /* ...содержимое bootstrap.template.js... */
-</script>
-```
+Содержимое `webflow-embed.html` вставляется целиком одним куском:
+Project Settings → Custom Code → **Footer Code** (Before `</body>` tag).
 
 Если в проекте нет Matter.js-физики или SplitType-текстов — соответствующие
-CDN-теги можно не подключать, `animations.js` проверяет их наличие перед использованием.
+CDN-теги внутри можно удалить, `animations.js` проверяет их наличие перед использованием.
 
 ### 3. Сами эффекты — без кода
 
