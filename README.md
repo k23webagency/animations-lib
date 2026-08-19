@@ -11,24 +11,18 @@
 - **`animations.js`** — сама библиотека. Ничего не запускает сама по себе,
   только объявляет `initAnimations()` и `initPhysics()`. Подключается по ссылке
   (jsDelivr), не копируется руками.
-- **`webflow-embed.html`** — НЕ часть библиотеки. Готовый embed-код для конкретного
-  проекта: CDN-подключения (GSAP, ScrollTrigger, SplitType, Lenis, Matter.js) +
-  ссылка на `animations.js` + обрезанный `main.js` (инициализация Lenis/ScrollTrigger
-  и вызов `initAnimations()`/`initPhysics()`). Копируется в проект целиком и может
-  редактироваться под его нужды (например, безопасно удалить блок Custom Cursor,
-  если он не нужен).
+- **`webflow-embed.html`** — то же самое, что в блоке ниже, отдельным файлом (на случай,
+  если удобнее скопировать из файла, а не из README).
 
-## Подключение (например, в Webflow)
+## Подключение в Webflow — через виджет Embed
 
-### 1. Head code — одна маленькая вставка отдельно (важно!)
+Два виджета **Embed** (Add panel → Embed, `</>`), оба вставляются руками, копипастой.
 
-Это единственное, что технически не может быть частью общего embed-кода:
-скрипт должен выполниться ДО рендера страницы, а `webflow-embed.html` вставляется
-в конце (перед `</body>`) и к этому моменту будет уже поздно. Без этой вставки
-ничего не сломается функционально — но будет короткая вспышка неанимированного
-контента (элементы на миг покажутся в конечном виде, потом дёрнутся в анимацию).
+### Виджет 1 — в самый верх страницы (первый элемент в body)
 
-Project Settings → Custom Code → **Head Code**:
+Прячет анимированные элементы до полной инициализации, чтобы не было вспышки
+неанимированного контента. Можно положить в глобальный Navbar-компонент, чтобы
+не повторять на каждой странице.
 
 ```html
 <script>document.documentElement.classList.add('js-loading');</script>
@@ -37,13 +31,102 @@ Project Settings → Custom Code → **Head Code**:
 </style>
 ```
 
-### 2. Всё остальное — один embed на проект
+Без этого виджета всё будет работать, просто иногда будет короткий визуальный
+дёрг перед анимацией — не критично, можно пропустить для скорости.
 
-Содержимое `webflow-embed.html` вставляется целиком одним куском:
-Project Settings → Custom Code → **Footer Code** (Before `</body>` tag).
+### Виджет 2 — в самый низ страницы (последний элемент в body, например в глобальном Footer-компоненте)
+
+CDN-подключения + ссылка на библиотеку + обрезанный `main.js` (инициализация
+Lenis/ScrollTrigger и вызов `initAnimations()`/`initPhysics()`) — копировать
+весь блок целиком:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/split-type"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+<!-- Библиотека анимаций (версия зафиксирована тегом релиза) -->
+<script src="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.0.0/animations.js"></script>
+
+<script>
+(function () {
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    direction: 'vertical',
+    gestureDirection: 'vertical',
+    smooth: true,
+    mouseMultiplier: 1,
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  gsap.registerPlugin(ScrollTrigger);
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => {
+    lenis.raf(time * 1000);
+  });
+  gsap.ticker.lagSmoothing(0);
+
+  window.addEventListener('load', () => {
+    document.documentElement.classList.remove('js-loading');
+
+    if (typeof initAnimations === 'function') {
+      initAnimations();
+    }
+
+    if (typeof initPhysics === 'function' && document.querySelector('.physics-container')) {
+      initPhysics();
+    }
+
+    // --- Custom Cursor (опционально, удалите блок если не нужен в проекте) ---
+    const cursor = document.getElementById('custom-cursor');
+    const cursorText = cursor ? cursor.querySelector('.cursor-text') : null;
+
+    if (cursor) {
+      gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+
+      let xTo = gsap.quickTo(cursor, "x", { duration: 0.2, ease: "power3" }),
+          yTo = gsap.quickTo(cursor, "y", { duration: 0.2, ease: "power3" });
+
+      window.addEventListener('mousemove', (e) => {
+        xTo(e.clientX);
+        yTo(e.clientY);
+      });
+
+      document.querySelectorAll('[data-cursor]').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          const text = el.getAttribute('data-cursor');
+          if (cursorText) cursorText.textContent = text;
+          cursor.classList.add('active');
+        });
+        el.addEventListener('mouseleave', () => {
+          cursor.classList.remove('active');
+          if (cursorText) cursorText.textContent = '';
+        });
+      });
+    }
+
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+  });
+})();
+</script>
+```
 
 Если в проекте нет Matter.js-физики или SplitType-текстов — соответствующие
 CDN-теги внутри можно удалить, `animations.js` проверяет их наличие перед использованием.
+Блок Custom Cursor тоже можно удалить, если курсор в проекте не нужен.
 
 ### 3. Сами эффекты — без кода
 
