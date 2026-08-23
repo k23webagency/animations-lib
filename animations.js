@@ -198,27 +198,35 @@ function initAnimations() {
         el.style.position = 'relative';
         el.style.display = 'inline-block';
 
-        // И текст, и полоса-заливка — реальные элементы, которые можно
-        // заранее положить в разметку (Designer-friendly, свои классы,
-        // видны и стилизуются в Webflow). Если их нет — создаём сами,
-        // как раньше, для обратной совместимости.
-        let textSpan = el.querySelector('.block-highlight-text');
-        if (!textSpan) {
-          textSpan = document.createElement('span');
-          textSpan.className = 'block-highlight-text';
-          textSpan.innerHTML = el.innerHTML;
-          el.innerHTML = '';
-          el.appendChild(textSpan);
-        }
-
-        let block = el.querySelector('.block-highlight-sweep');
+        // Полоса-заливка — реальный элемент, который можно заранее положить
+        // в разметку (Designer-friendly, свой класс — любой, видна и
+        // стилизуется в Webflow). Находим её по атрибуту-маркеру, а не по
+        // имени класса — так её можно переименовать в Designer без риска
+        // сломать поиск. Если её нет вообще — создаём сами (обратная
+        // совместимость), с дефолтным классом для стилизации из companion CSS.
+        let block = el.querySelector('[data-block-highlight-sweep]');
         if (!block) {
           block = document.createElement('div');
           block.className = 'block-highlight-sweep';
+          block.setAttribute('data-block-highlight-sweep', 'true');
+        }
+
+        // Текст — всё остальное содержимое el, кроме самой полосы (какой бы
+        // класс у неё ни был). Переносим на место, полосу не трогаем.
+        const textSpan = document.createElement('span');
+        const alreadyInDom = block.parentNode === el;
+        [...el.childNodes].forEach(node => {
+          if (node !== block) textSpan.appendChild(node);
+        });
+        if (alreadyInDom) {
+          el.insertBefore(textSpan, block);
+        } else {
+          el.appendChild(textSpan);
           el.appendChild(block);
         }
+
         // Структурные стили — часть механики эффекта, задаются в JS.
-        // Цвет полосы — оформление, задаётся классом .block-highlight-sweep
+        // Цвет полосы — оформление, задаётся её собственным классом
         // (стилизуется в Webflow/вашем CSS, не хардкодится здесь).
         block.style.position = 'absolute';
         block.style.top = '0'; block.style.left = '0';
