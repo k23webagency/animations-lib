@@ -1,0 +1,33 @@
+/* Companion CSS for animations.js — required for JS-injected elements
+   that are NOT self-contained via inline styles.
+   Include this alongside animations.js wherever the library is used. */
+
+/* Follow Image Reveal (data-hover-reveal) —
+   styles the <img> that animations.js creates and appends to <body> */
+.hover-reveal-img {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 350px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-50%, -50%) scale(0) rotate(5deg);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Typewriter (data-animate="typewriter") —
+   blinking caret appended after the text while typing */
+.typewriter-active::after {
+  content: '|';
+  display: inline-block;
+  animation: animaster-blink 1s step-end infinite;
+  margin-left: 5px;
+}
+@keyframes animaster-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

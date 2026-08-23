@@ -11,6 +11,12 @@
 - **`animations.js`** — сама библиотека. Ничего не запускает сама по себе,
   только объявляет `initAnimations()` и `initPhysics()`. Подключается по ссылке
   (jsDelivr), не копируется руками.
+- **`animations.css`** — обязательный спутник `animations.js`. Часть эффектов создаёт
+  элементы через JS и стилизует их инлайново (самодостаточны), но два эффекта опираются
+  на внешний CSS-класс: `data-hover-reveal` (плавающая за курсором картинка) и
+  `data-animate="typewriter"` (мигающий курсор). Без этого файла эти два эффекта
+  будут работать "сломанно" — картинка появится нестилизованным блобом на весь экран
+  вместо анимированного превью у курсора. Подключается так же по ссылке.
 - **`webflow-embed.html`** — то же самое, что в блоке ниже, отдельным файлом (на случай,
   если удобнее скопировать из файла, а не из README).
 
@@ -48,6 +54,7 @@ Lenis/ScrollTrigger и вызов `initAnimations()`/`initPhysics()`) — коп
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
 <!-- Библиотека анимаций (версия зафиксирована тегом релиза) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.0.0/animations.css">
 <script src="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.0.0/animations.js"></script>
 
 <script>
