@@ -54,8 +54,8 @@ Lenis/ScrollTrigger и вызов `initAnimations()`/`initPhysics()`) — коп
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
 <!-- Библиотека анимаций (версия зафиксирована тегом релиза) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.0.0/animations.css">
-<script src="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.0.0/animations.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.2.0/animations.css">
+<script src="https://cdn.jsdelivr.net/gh/k23webagency/animations-lib@v1.2.0/animations.js"></script>
 
 <script>
 (function () {
@@ -142,7 +142,7 @@ CDN-теги внутри можно удалить, `animations.js` прове�
 
 ## Версионирование
 
-- `@v1.0.0` (или другой тег) в jsDelivr-ссылке — зафиксированная версия, безопасно для прода.
+- `@v1.2.0` (или другой тег) в jsDelivr-ссылке — зафиксированная версия, безопасно для прода.
 - `@main` — всегда последняя версия из ветки main (после пуша jsDelivr кэширует
   до ~7 дней, форсировать обновление: `https://purge.jsdelivr.net/gh/USERNAME/REPO@main/animations.js`).
 
