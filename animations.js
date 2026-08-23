@@ -5,10 +5,15 @@ function initAnimations() {
   // --- 12. Follow Image Reveal ---
   const hoverReveals = document.querySelectorAll('[data-hover-reveal]');
   if (hoverReveals.length > 0) {
-    const cursorImg = document.createElement('img');
-    cursorImg.className = 'hover-reveal-img';
-    document.body.appendChild(cursorImg);
-    
+    // Используем картинку из разметки, если она там уже есть (Designer-friendly),
+    // иначе создаём её сами, как раньше.
+    let cursorImg = document.querySelector('.hover-reveal-img');
+    if (!cursorImg) {
+      cursorImg = document.createElement('img');
+      cursorImg.className = 'hover-reveal-img';
+      document.body.appendChild(cursorImg);
+    }
+
     let xTo = gsap.quickTo(cursorImg, "x", {duration: 0.4, ease: "power3"}),
         yTo = gsap.quickTo(cursorImg, "y", {duration: 0.4, ease: "power3"});
 
