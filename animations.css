@@ -2,6 +2,68 @@
    that are NOT self-contained via inline styles.
    Include this alongside animations.js wherever the library is used. */
 
+/* Accent color used by a few CSS-only/JS effects below (block-highlight,
+   liquid-gradient). Override this in your own project CSS if you want the
+   sweep/gradient to match a different brand color. */
+:root {
+  --accent-color: hsla(113, 78%, 48%, 1);
+}
+
+/* Text Scrub (data-animate="text-scrub") —
+   words start dim, animations.js fades each to full opacity on scroll */
+.text-scrub-word {
+  opacity: 0.15;
+  transition: opacity 0.1s;
+}
+
+/* Inline Image (data-inline-image) —
+   the wrapper animations.js creates around the injected <img> */
+.inline-image-wrapper {
+  display: inline-flex;
+  vertical-align: baseline;
+  width: 0;
+  height: 0.9em;
+  overflow: hidden;
+  border-radius: 50px;
+  transform: translateY(0.1em);
+  will-change: width;
+}
+.inline-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-width: 120px;
+}
+
+/* Block Highlight (data-animate="block-highlight") —
+   padding so the sweeping block doesn't clip the text tightly */
+[data-animate="block-highlight"] {
+  padding: 10px 20px;
+}
+
+/* Liquid Gradient (data-animate="liquid-gradient") — pure CSS, no JS case */
+[data-animate="liquid-gradient"] {
+  background: linear-gradient(-45deg, var(--accent-color), #00a8ff, #ff007f, var(--accent-color));
+  background-size: 400% 400%;
+  animation: liquidGradient 8s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
+}
+@keyframes liquidGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Media Text Parallax (data-animate="media-text-parallax") —
+   animations.js clips text to whatever background-image is already on the
+   element and animates its position/scale on scroll. The image itself is
+   content, not a library default — set it per-instance in your project
+   (inline style or a project-level CSS rule), not here. */
+
 /* Follow Image Reveal (data-hover-reveal) —
    styles the <img> that animations.js creates and appends to <body> */
 .hover-reveal-img {
