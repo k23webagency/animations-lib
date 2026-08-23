@@ -5,15 +5,9 @@ function initAnimations() {
   // --- 12. Follow Image Reveal ---
   const hoverReveals = document.querySelectorAll('[data-hover-reveal]');
   if (hoverReveals.length > 0) {
-    // Летающая картинка ищется по структуре, а не по имени класса (устойчиво к переименованию
-    // стилей в Designer): любой <img> в разметке, который НЕ лежит внутри одного из
-    // [data-hover-reveal]-врапперов. Если такого нет — создаём сами, как раньше.
-    let cursorImg = null;
-    document.querySelectorAll('img').forEach(img => {
-      if (!cursorImg && !img.closest('[data-hover-reveal]')) {
-        cursorImg = img;
-      }
-    });
+    // Летающая картинка — элемент с атрибутом data-hover-reveal-image в разметке.
+    // Если его нет, создаём сами, как раньше.
+    let cursorImg = document.querySelector('[data-hover-reveal-image]');
     if (!cursorImg) {
       cursorImg = document.createElement('img');
       cursorImg.className = 'hover-reveal-img';
