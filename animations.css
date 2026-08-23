@@ -16,8 +16,13 @@
   transition: opacity 0.1s;
 }
 
-/* Inline Image (data-inline-image) —
-   the wrapper animations.js creates around the injected <img> */
+/* Inline Image (data-inline-image) — the wrapper animations.js creates
+   around the <img> (whether it created that <img> itself from a URL
+   attribute, or wrapped one already in your markup) and animates its
+   width from 0 to 'auto'. Everything here is the LOOK of the final
+   result — height, radius, final width — free to override in Webflow
+   or your own project CSS; only width:0/overflow:hidden are load-bearing
+   for the collapse-then-reveal mechanic itself. */
 .inline-image-wrapper {
   display: inline-flex;
   vertical-align: baseline;
@@ -29,16 +34,21 @@
   will-change: width;
 }
 .inline-image-wrapper img {
-  width: 100%;
+  width: auto;
   height: 100%;
   object-fit: cover;
-  min-width: 120px;
 }
 
 /* Block Highlight (data-animate="block-highlight") —
    padding so the sweeping block doesn't clip the text tightly */
 [data-animate="block-highlight"] {
   padding: 10px 20px;
+}
+/* The sweep bar's own look (color) — animations.js only creates this div
+   and gives it this class; style it here or override with your own
+   project/Designer class for a different color. */
+.block-highlight-sweep {
+  background-color: var(--accent-color);
 }
 
 /* Liquid Gradient (data-animate="liquid-gradient") — pure CSS, no JS case */

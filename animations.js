@@ -203,11 +203,14 @@ function initAnimations() {
         el.innerHTML = '';
         el.appendChild(textSpan);
         
+        // Структурные стили — часть механики эффекта, задаются в JS.
+        // Цвет полосы — оформление, задаётся классом .block-highlight-sweep
+        // (стилизуется в Webflow/вашем CSS, не хардкодится здесь).
         const block = document.createElement('div');
+        block.className = 'block-highlight-sweep';
         block.style.position = 'absolute';
         block.style.top = '0'; block.style.left = '0';
         block.style.width = '100%'; block.style.height = '100%';
-        block.style.backgroundColor = 'var(--accent-color)';
         block.style.transformOrigin = 'left';
         el.appendChild(block);
         
@@ -1942,11 +1945,32 @@ function initAnimations() {
   
   // 13.1 Inline Image Reveal
   document.querySelectorAll('[data-inline-image]').forEach(el => {
-    const url = el.dataset.inlineImage;
-    el.innerHTML = `<span class="inline-image-wrapper"><img src="${url}" alt=""></span>${el.innerHTML}`;
-    
-    gsap.to(el.querySelector('.inline-image-wrapper'), {
-      width: '3em', // ширина раскрывающегося изображения
+    const wrapper = document.createElement('span');
+    wrapper.className = 'inline-image-wrapper';
+
+    // Картинка уже в разметке (data-inline-image стоит прямо на <img>,
+    // Designer-friendly) — оборачиваем её на месте, ничего не создаём.
+    // Если атрибут стоит на другом элементе со значением-URL — старый
+    // способ: создаём <img> сами.
+    let img = el.tagName === 'IMG' ? el : el.querySelector('img');
+    if (img) {
+      img.parentNode.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+    } else {
+      img = document.createElement('img');
+      img.src = el.dataset.inlineImage;
+      img.alt = '';
+      wrapper.appendChild(img);
+      el.innerHTML = '';
+      el.appendChild(wrapper);
+    }
+
+    // Конечная ширина картинки — это оформление, а не механика эффекта:
+    // задаётся в CSS классом .inline-image-wrapper (или своим классом
+    // поверх него). 'auto' здесь означает "досчитай по текущим стилям",
+    // а не хардкод фиксированного значения.
+    gsap.to(wrapper, {
+      width: 'auto',
       ease: 'power3.out',
       duration: 1.2,
       scrollTrigger: {
