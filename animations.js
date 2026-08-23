@@ -22,7 +22,10 @@ function initAnimations() {
     hoverReveals.forEach(el => {
       el.addEventListener('mouseenter', (e) => {
         isHovering = true;
-        cursorImg.src = el.getAttribute('data-hover-reveal');
+        // Источник картинки: сперва ищем вложенный <img> в разметке (Designer-friendly),
+        // иначе используем URL из значения атрибута data-hover-reveal (как раньше).
+        const nestedImg = el.querySelector('img');
+        cursorImg.src = nestedImg ? nestedImg.getAttribute('src') : el.getAttribute('data-hover-reveal');
         gsap.set(cursorImg, { x: e.clientX, y: e.clientY });
         xTo(e.clientX);
         yTo(e.clientY);
