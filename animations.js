@@ -25,7 +25,9 @@ function initAnimations() {
         // Источник картинки: сперва ищем вложенный <img> в разметке (Designer-friendly),
         // иначе используем URL из значения атрибута data-hover-reveal (как раньше).
         const nestedImg = el.querySelector('img');
-        cursorImg.src = nestedImg ? nestedImg.getAttribute('src') : el.getAttribute('data-hover-reveal');
+        // .src (не getAttribute) — отдаёт актуальный резолвнутый адрес картинки,
+        // даже если платформа (например Webflow) подменяет исходный атрибут через lazy-load.
+        cursorImg.src = nestedImg ? nestedImg.src : el.getAttribute('data-hover-reveal');
         gsap.set(cursorImg, { x: e.clientX, y: e.clientY });
         xTo(e.clientX);
         yTo(e.clientY);
