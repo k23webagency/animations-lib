@@ -1,6 +1,12 @@
 /* Companion CSS for animations.js — required for JS-injected elements
    that are NOT self-contained via inline styles.
-   Include this alongside animations.js wherever the library is used. */
+   Include this alongside animations.js wherever the library is used.
+
+   Every "look" rule below (colors, sizes, gradients — anything that isn't
+   load-bearing for the effect's mechanic) is wrapped in :where(...). That
+   zeroes its specificity, so a same-named class you create in Webflow's
+   Designer (or any project CSS) always wins automatically — no fighting
+   load order, no !important, no extra combo class needed to override it. */
 
 /* Accent color used by a few CSS-only/JS effects below (block-highlight,
    liquid-gradient). Override this in your own project CSS if you want the
@@ -11,7 +17,7 @@
 
 /* Text Scrub (data-animate="text-scrub") —
    words start dim, animations.js fades each to full opacity on scroll */
-.text-scrub-word {
+:where(.text-scrub-word) {
   opacity: 0.15;
   transition: opacity 0.1s;
 }
@@ -23,7 +29,7 @@
    result — height, radius, final width — free to override in Webflow
    or your own project CSS; only width:0/overflow:hidden are load-bearing
    for the collapse-then-reveal mechanic itself. */
-.inline-image-wrapper {
+:where(.inline-image-wrapper) {
   display: inline-flex;
   vertical-align: baseline;
   width: 0;
@@ -33,7 +39,7 @@
   transform: translateY(0.1em);
   will-change: width;
 }
-.inline-image-wrapper img {
+:where(.inline-image-wrapper) img {
   width: auto;
   height: 100%;
   object-fit: cover;
@@ -41,18 +47,22 @@
 
 /* Block Highlight (data-animate="block-highlight") —
    padding so the sweeping block doesn't clip the text tightly */
-[data-animate="block-highlight"] {
+:where([data-animate="block-highlight"]) {
   padding: 10px 20px;
 }
 /* The sweep bar's own look (color) — animations.js only creates this div
    and gives it this class; style it here or override with your own
    project/Designer class for a different color. */
-.block-highlight-sweep {
+:where(.block-highlight-sweep) {
   background-color: var(--accent-color);
 }
 
-/* Liquid Gradient (data-animate="liquid-gradient") — pure CSS, no JS case */
-[data-animate="liquid-gradient"] {
+/* Liquid Gradient (data-animate="liquid-gradient") — pure CSS, no JS case.
+   The @keyframes is shared/global — a Webflow class that just sets its own
+   `animation: liquidGradient ...` still picks it up correctly even though
+   the keyframes themselves aren't :where()-wrapped (keyframes don't cascade
+   by specificity, only by name, so there's nothing to override here). */
+:where([data-animate="liquid-gradient"]) {
   background: linear-gradient(-45deg, var(--accent-color), #00a8ff, #ff007f, var(--accent-color));
   background-size: 400% 400%;
   animation: liquidGradient 8s ease infinite;

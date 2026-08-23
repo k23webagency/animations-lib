@@ -286,11 +286,12 @@ function initAnimations() {
         el.style.webkitBackgroundClip = 'text';
         el.style.color = 'transparent';
         el.style.webkitTextFillColor = 'transparent';
-        el.style.backgroundPosition = '50% 50%';
-        el.style.backgroundSize = '100%';
-        
+        el.style.backgroundPosition = '50% 20%';
+        el.style.backgroundSize = '160%';
+
         gsap.to(el, {
-          backgroundSize: '150%',
+          backgroundSize: '220%',
+          backgroundPosition: '50% 80%',
           ease: 'none',
           scrollTrigger: {
             trigger: el,
