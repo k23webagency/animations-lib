@@ -1376,19 +1376,35 @@ function initAnimations() {
         el.style.height = '1em';
         el.style.width = '100%';
         
+        // Слова накладываются друг на друга по горизонтали так, как их
+        // выравнивает text-align контейнера (left/center/right), а не
+        // хардкодом по центру — иначе эффект игнорирует выключку текста.
+        const align = getComputedStyle(el).textAlign;
+        let anchorCss, translateX;
+        if (align === 'right') {
+          anchorCss = { right: '0' };
+          translateX = '0%';
+        } else if (align === 'center') {
+          anchorCss = { left: '50%' };
+          translateX = '-50%';
+        } else {
+          anchorCss = { left: '0' };
+          translateX = '0%';
+        }
+
         const w1 = document.createElement('span');
         w1.innerText = words[0];
         w1.style.position = 'absolute';
-        w1.style.left = '50%';
+        Object.assign(w1.style, anchorCss);
         w1.style.top = '50%';
-        w1.style.transform = 'translate(-50%, -50%)';
-        
+        w1.style.transform = `translate(${translateX}, -50%)`;
+
         const w2 = document.createElement('span');
         w2.innerText = words[1];
         w2.style.position = 'absolute';
-        w2.style.left = '50%';
+        Object.assign(w2.style, anchorCss);
         w2.style.top = '50%';
-        w2.style.transform = 'translate(-50%, -50%)';
+        w2.style.transform = `translate(${translateX}, -50%)`;
         
         el.appendChild(w1);
         el.appendChild(w2);
