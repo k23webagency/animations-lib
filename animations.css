@@ -22,26 +22,18 @@
   transition: opacity 0.1s;
 }
 
-/* Inline Image (data-inline-image) — the wrapper animations.js creates
-   around the <img> (whether it created that <img> itself from a URL
-   attribute, or wrapped one already in your markup) and animates its
-   width from 0 to 'auto'. Everything here is the LOOK of the final
-   result — height, radius, final width — free to override in Webflow
-   or your own project CSS; only width:0/overflow:hidden are load-bearing
-   for the collapse-then-reveal mechanic itself. */
-:where(.inline-image-wrapper) {
-  display: inline-flex;
-  vertical-align: baseline;
-  width: 0;
+/* Inline Image (data-inline-image) — animations.js reads the <img>'s own
+   width (whatever its own class/Designer styling resolves to) as the
+   animation's end point, then collapses it to 0 and reveals it back to
+   that width on scroll. Put width/height/border-radius/object-fit directly
+   on the <img>'s own class (each image can use a different one) — none of
+   that lives here. This rule is only a fallback LOOK for the legacy
+   URL-attribute usage, when animations.js has to create the <img> itself
+   and it has no class of its own yet. */
+:where(.inline-image-default) {
   height: 0.9em;
-  overflow: hidden;
-  border-radius: 50px;
-  transform: translateY(0.1em);
-  will-change: width;
-}
-:where(.inline-image-wrapper) img {
-  width: auto;
-  height: 100%;
+  vertical-align: baseline;
+  border-radius: 12px;
   object-fit: cover;
 }
 

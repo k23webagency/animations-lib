@@ -197,23 +197,36 @@ function initAnimations() {
       case 'block-highlight': {
         el.style.position = 'relative';
         el.style.display = 'inline-block';
-        const textSpan = document.createElement('span');
-        textSpan.innerHTML = el.innerHTML;
-        textSpan.style.opacity = 0;
-        el.innerHTML = '';
-        el.appendChild(textSpan);
-        
+
+        // И текст, и полоса-заливка — реальные элементы, которые можно
+        // заранее положить в разметку (Designer-friendly, свои классы,
+        // видны и стилизуются в Webflow). Если их нет — создаём сами,
+        // как раньше, для обратной совместимости.
+        let textSpan = el.querySelector('.block-highlight-text');
+        if (!textSpan) {
+          textSpan = document.createElement('span');
+          textSpan.className = 'block-highlight-text';
+          textSpan.innerHTML = el.innerHTML;
+          el.innerHTML = '';
+          el.appendChild(textSpan);
+        }
+
+        let block = el.querySelector('.block-highlight-sweep');
+        if (!block) {
+          block = document.createElement('div');
+          block.className = 'block-highlight-sweep';
+          el.appendChild(block);
+        }
         // Структурные стили — часть механики эффекта, задаются в JS.
         // Цвет полосы — оформление, задаётся классом .block-highlight-sweep
         // (стилизуется в Webflow/вашем CSS, не хардкодится здесь).
-        const block = document.createElement('div');
-        block.className = 'block-highlight-sweep';
         block.style.position = 'absolute';
         block.style.top = '0'; block.style.left = '0';
         block.style.width = '100%'; block.style.height = '100%';
         block.style.transformOrigin = 'left';
-        el.appendChild(block);
-        
+
+        gsap.set(textSpan, { opacity: 0 });
+
         const tl = gsap.timeline({ scrollTrigger: scrollConfig });
         tl.fromTo(block, { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: 'power2.inOut' })
           .set(textSpan, { opacity: 1 })
@@ -1944,34 +1957,33 @@ function initAnimations() {
 
   // --- 13. Новые Hover эффекты и Inline Image ---
   
-  // 13.1 Inline Image Reveal
+  // 13.1 Inline Image Reveal — картинка сама задаёт свой конечный размер
+  // своим классом (ширина/высота/радиус/object-fit — что угодно, каждая
+  // картинка независимо). Скрипт только схлопывает её в 0 и разворачивает
+  // обратно до того размера, который уже посчитан в CSS — никакого общего
+  // враппера и никакого хардкода итогового размера в JS.
   document.querySelectorAll('[data-inline-image]').forEach(el => {
-    const wrapper = document.createElement('span');
-    wrapper.className = 'inline-image-wrapper';
-
     // Картинка уже в разметке (data-inline-image стоит прямо на <img>,
-    // Designer-friendly) — оборачиваем её на месте, ничего не создаём.
-    // Если атрибут стоит на другом элементе со значением-URL — старый
-    // способ: создаём <img> сами.
+    // Designer-friendly). Если атрибут стоит на другом элементе со
+    // значением-URL — старый способ: создаём <img> сами, с дефолтным
+    // классом (стилизуется в companion CSS, .inline-image-default).
     let img = el.tagName === 'IMG' ? el : el.querySelector('img');
-    if (img) {
-      img.parentNode.insertBefore(wrapper, img);
-      wrapper.appendChild(img);
-    } else {
+    if (!img) {
       img = document.createElement('img');
       img.src = el.dataset.inlineImage;
       img.alt = '';
-      wrapper.appendChild(img);
+      img.className = 'inline-image-default';
       el.innerHTML = '';
-      el.appendChild(wrapper);
+      el.appendChild(img);
     }
 
-    // Конечная ширина картинки — это оформление, а не механика эффекта:
-    // задаётся в CSS классом .inline-image-wrapper (или своим классом
-    // поверх него). 'auto' здесь означает "досчитай по текущим стилям",
-    // а не хардкод фиксированного значения.
-    gsap.to(wrapper, {
-      width: 'auto',
+    // Считаем финальную ширину ДО схлопывания — это то, что задано в CSS
+    // (своим классом на картинке или .inline-image-default по умолчанию).
+    const finalWidth = img.getBoundingClientRect().width;
+    gsap.set(img, { width: 0 });
+
+    gsap.to(img, {
+      width: finalWidth,
       ease: 'power3.out',
       duration: 1.2,
       scrollTrigger: {
