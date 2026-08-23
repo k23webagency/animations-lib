@@ -27,6 +27,11 @@ function initAnimations() {
         const nestedImg = el.querySelector('img');
         // .src (не getAttribute) — отдаёт актуальный резолвнутый адрес картинки,
         // даже если платформа (например Webflow) подменяет исходный атрибут через lazy-load.
+        // srcset нужно чистить: если он остался от исходной картинки в разметке (Webflow
+        // всегда его проставляет), браузер выбирает реальную картинку по нему, а не по src,
+        // и визуально показывает старое изображение, даже когда src уже указывает на новое.
+        cursorImg.removeAttribute('srcset');
+        cursorImg.removeAttribute('sizes');
         cursorImg.src = nestedImg ? nestedImg.src : el.getAttribute('data-hover-reveal');
         gsap.set(cursorImg, { x: e.clientX, y: e.clientY });
         xTo(e.clientX);
